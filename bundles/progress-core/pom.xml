@@ -25,6 +25,12 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.lwjgl</groupId>
+      <artifactId>lwjgl</artifactId>
+      <version>3.0.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -33,9 +39,11 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Require-Budle>
-              org.eientei.progress.bundles.progress-log
-            </Require-Budle>
+            <Import-Package>
+              org.lwjgl.glfw,
+              org.lwjgl.opengl,
+              org.slf4j
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

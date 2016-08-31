@@ -8,5 +8,5 @@ Export-Package: *
 Import-Package: !sun.misc,!sun.nio.ch,!sun.reflect,*
 Include-Resource: @*
 Bundle-NativeCode: libglfw.so; libjemalloc.so; liblwjgl.so; libopenal.so; processor=x86_64; osname=linux,
-                   glfw.dll; jemalloc.dll; lwjgl.dll; OpenAL.dll; processor=x86_64; osname=win64,
+                   glfw.dll; jemalloc.dll; lwjgl.dll; OpenAL.dll; processor=x86_64; osname=win32,
                    glfw32.dll; jemalloc32.dll; lwjgl32.dll; OpenAL32.dll; processor=x86; osname=win32
