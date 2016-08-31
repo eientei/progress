@@ -3,12 +3,12 @@
   <parent>
     <artifactId>root</artifactId>
     <groupId>org.eientei.progress</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>launcher</artifactId>
   <name>launcher</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
@@ -27,10 +27,40 @@
               <mainClass>org.eientei.progress.launcher.Progress</mainClass>
             </transformer>
           </transformers>
+          <filters>
+            <filter>
+              <artifact>biz.aQute.bnd:biz.aQute.bndlib</artifact>
+              <excludes>
+                <exclude>org/osgi/resource/*</exclude>
+              </excludes>
+            </filter>
+          </filters>
         </configuration>
       </plugin>
     </plugins>
   </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>1.4.0</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>org.osgi.core</artifactId>
+          <groupId>org.apache.felix</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>javax.servlet</artifactId>
+          <groupId>org.apache.felix</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>org.osgi.foundation</artifactId>
+          <groupId>org.apache.felix</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

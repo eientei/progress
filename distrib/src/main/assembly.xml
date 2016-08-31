@@ -30,4 +30,10 @@
       </binaries>
     </moduleSet>
   </moduleSets>
+  <fileSets>
+    <fileSet>
+      <directory>src/repo</directory>
+      <outputDirectory>specs</outputDirectory>
+    </fileSet>
+  </fileSets>
 </assembly>

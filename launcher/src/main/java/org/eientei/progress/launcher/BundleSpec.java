@@ -3,11 +3,13 @@ package org.eientei.progress.launcher;
 import aQute.bnd.osgi.Builder;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
+import org.osgi.framework.launch.Framework;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -16,15 +18,15 @@ import java.util.Properties;
  * Created by Alexander Tumin on 2016-08-16
  */
 public class BundleSpec {
-    private static String MAVEN_ARTIFACTS = "Maven-Artifacts";
+    private final static String MAVEN_ARTIFACTS = "Maven-Artifacts";
 
     private List<DepSpec> dependencies = new ArrayList<>();
     private Properties properties = new Properties();
-    private long lastmodified;
+    private File spec;
 
     public BundleSpec(File f) throws IOException {
         this(new FileInputStream(f));
-        lastmodified = f.lastModified();
+        this.spec = f;
     }
 
     public BundleSpec(InputStream f) throws IOException {
@@ -58,13 +60,35 @@ public class BundleSpec {
         }
     }
 
-    public void build(File cachedir, File builddir) throws Exception {
+    public void build(Framework framework, File cachedir, File builddir) throws Exception {
+        File lock = null;
+        if (spec != null) {
+            String lockname = spec.toPath().getFileName().toString();
+            lock = framework.getDataFile(lockname);
+            if (lock.exists()) {
+                return;
+            }
+        }
+
         if (dependencies.isEmpty()) {
+            if (lock != null) {
+                lock.createNewFile();
+            }
             return;
         }
 
         if (properties.isEmpty()) {
-            properties.put(Constants.EXPORT_PACKAGE, "*");
+            List<File> cp = resolveDeps(cachedir);
+            for (File f : cp) {
+                Path dest = builddir.toPath().resolve(f.toPath().getFileName());
+                if (!dest.toFile().exists()) {
+                    Files.copy(f.toPath(), dest);
+                }
+            }
+            if (lock != null) {
+                lock.createNewFile();
+            }
+            return;
         }
 
         if (!properties.containsKey(Constants.BUNDLE_NAME)) {
@@ -82,31 +106,16 @@ public class BundleSpec {
         String resultName = properties.get(Constants.BUNDLE_NAME) + "-" + properties.get(Constants.BUNDLE_VERSION);
 
         File result = new File(builddir, resultName + ".jar");
-        if (result.exists() && (lastmodified > 0 && result.lastModified() < lastmodified)) {
+        if (result.exists() && (spec != null && result.lastModified() < spec.lastModified())) {
             return;
         }
+
+        List<File> cp = resolveDeps(cachedir);
 
         System.out.println("Building bundle " + resultName);
         Builder builder = new Builder();
         builder.setBase(builddir);
-
-        for (DepSpec dep : dependencies) {
-            System.out.println("Resolving dependency " + dep.toString());
-            URL url = dep.constructUrl();
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setInstanceFollowRedirects(false);
-            URL desturl = new URL(conn.getHeaderField("Location"));
-
-            String dst = desturl.getFile().substring(desturl.getFile().lastIndexOf("/")+1);
-            File out = new File(cachedir, dep.getGroupid() + "." + dst);
-
-            if (!out.exists()) {
-                System.out.print("Downloading dependency " + dst + " ... ");
-                Files.copy(desturl.openStream(), out.toPath());
-                System.out.println("done");
-            }
-            builder.addClasspath(out);
-        }
+        builder.addClasspath(cp);
 
         for (Object keyo : properties.keySet()) {
             String key = keyo.toString();
@@ -125,5 +134,33 @@ public class BundleSpec {
         jar.getManifest().write(System.out);
         System.out.println();
         jar.write(result);
+
+        if (lock != null) {
+            lock.createNewFile();
+        }
+    }
+
+    private List<File> resolveDeps(File cachedir) throws IOException {
+        List<File> cp = new ArrayList<>();
+
+        for (DepSpec dep : dependencies) {
+            System.out.println("Resolving dependency " + dep.toString());
+            URL url = dep.constructUrl();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(false);
+            URL desturl = new URL(conn.getHeaderField("Location"));
+
+            String dst = desturl.getFile().substring(desturl.getFile().lastIndexOf("/")+1);
+            File out = new File(cachedir, dep.getGroupid() + "." + dst);
+
+            if (!out.exists()) {
+                System.out.print("Downloading dependency " + dst + " ... ");
+                Files.copy(desturl.openStream(), out.toPath());
+                System.out.println("done");
+            }
+            cp.add(out);
+        }
+
+        return cp;
     }
 }

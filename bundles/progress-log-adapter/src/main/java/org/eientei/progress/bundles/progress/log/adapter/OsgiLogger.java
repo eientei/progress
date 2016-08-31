@@ -1,4 +1,4 @@
-package org.slf4j.impl;
+package org.eientei.progress.bundles.progress.log.adapter;
 
 import org.osgi.service.log.LogService;
 import org.slf4j.helpers.FormattingTuple;
@@ -9,10 +9,23 @@ import org.slf4j.helpers.MessageFormatter;
  * Created by Alexander Tumin on 2016-08-15
  */
 public class OsgiLogger extends MarkerIgnoringBase {
-    private LogService logService;
+    private LogServiceProvider provider;
+    private String threadname;
+    private String source;
 
-    public OsgiLogger(LogService logService) {
-        this.logService = logService;
+    public OsgiLogger(String threadname, String source, LogServiceProvider provider) {
+        this.threadname = threadname;
+        this.source = source;
+        this.provider = provider;
+    }
+
+    private void log(int level, String msg) {
+        log(level, msg, null);
+    }
+
+    private void log(int level, String msg, Throwable t) {
+        String sb = "[" + threadname + "] " + source.substring(source.lastIndexOf(".")+1) + " - " + msg;
+        provider.log(level, sb, t);
     }
 
     @Override
@@ -52,30 +65,30 @@ public class OsgiLogger extends MarkerIgnoringBase {
 
     @Override
     public void debug(String s) {
-        logService.log(LogService.LOG_DEBUG, s);
+        log(LogService.LOG_DEBUG, s);
     }
 
     @Override
     public void debug(String s, Object o) {
         FormattingTuple ft = MessageFormatter.format(s, o);
-        logService.log(LogService.LOG_DEBUG, ft.getMessage());
+        log(LogService.LOG_DEBUG, ft.getMessage());
     }
 
     @Override
     public void debug(String s, Object o, Object o1) {
         FormattingTuple ft = MessageFormatter.format(s, o, o1);
-        logService.log(LogService.LOG_DEBUG, ft.getMessage());
+        log(LogService.LOG_DEBUG, ft.getMessage());
     }
 
     @Override
     public void debug(String s, Object... objects) {
         FormattingTuple ft = MessageFormatter.arrayFormat(s, objects);
-        logService.log(LogService.LOG_DEBUG, ft.getMessage());
+        log(LogService.LOG_DEBUG, ft.getMessage());
     }
 
     @Override
     public void debug(String s, Throwable throwable) {
-        logService.log(LogService.LOG_DEBUG, s, throwable);
+        log(LogService.LOG_DEBUG, s, throwable);
     }
 
     @Override
@@ -85,30 +98,30 @@ public class OsgiLogger extends MarkerIgnoringBase {
 
     @Override
     public void info(String s) {
-        logService.log(LogService.LOG_INFO, s);
+        log(LogService.LOG_INFO, s);
     }
 
     @Override
     public void info(String s, Object o) {
         FormattingTuple ft = MessageFormatter.format(s, o);
-        logService.log(LogService.LOG_INFO, ft.getMessage());
+        log(LogService.LOG_INFO, ft.getMessage());
     }
 
     @Override
     public void info(String s, Object o, Object o1) {
         FormattingTuple ft = MessageFormatter.format(s, o, o1);
-        logService.log(LogService.LOG_INFO, ft.getMessage());
+        log(LogService.LOG_INFO, ft.getMessage());
     }
 
     @Override
     public void info(String s, Object... objects) {
         FormattingTuple ft = MessageFormatter.arrayFormat(s, objects);
-        logService.log(LogService.LOG_INFO, ft.getMessage());
+        log(LogService.LOG_INFO, ft.getMessage());
     }
 
     @Override
     public void info(String s, Throwable throwable) {
-        logService.log(LogService.LOG_INFO, s, throwable);
+        log(LogService.LOG_INFO, s, throwable);
     }
 
     @Override
@@ -118,30 +131,30 @@ public class OsgiLogger extends MarkerIgnoringBase {
 
     @Override
     public void warn(String s) {
-        logService.log(LogService.LOG_WARNING, s);
+        log(LogService.LOG_WARNING, s);
     }
 
     @Override
     public void warn(String s, Object o) {
         FormattingTuple ft = MessageFormatter.format(s, o);
-        logService.log(LogService.LOG_WARNING, ft.getMessage());
+        log(LogService.LOG_WARNING, ft.getMessage());
     }
 
     @Override
     public void warn(String s, Object... objects) {
         FormattingTuple ft = MessageFormatter.arrayFormat(s, objects);
-        logService.log(LogService.LOG_WARNING, ft.getMessage());
+        log(LogService.LOG_WARNING, ft.getMessage());
     }
 
     @Override
     public void warn(String s, Object o, Object o1) {
         FormattingTuple ft = MessageFormatter.format(s, o, o1);
-        logService.log(LogService.LOG_WARNING, ft.getMessage());
+        log(LogService.LOG_WARNING, ft.getMessage());
     }
 
     @Override
     public void warn(String s, Throwable throwable) {
-        logService.log(LogService.LOG_WARNING, s, throwable);
+        log(LogService.LOG_WARNING, s, throwable);
     }
 
     @Override
@@ -151,29 +164,29 @@ public class OsgiLogger extends MarkerIgnoringBase {
 
     @Override
     public void error(String s) {
-        logService.log(LogService.LOG_ERROR, s);
+        log(LogService.LOG_ERROR, s);
     }
 
     @Override
     public void error(String s, Object o) {
         FormattingTuple ft = MessageFormatter.format(s, o);
-        logService.log(LogService.LOG_ERROR, ft.getMessage());
+        log(LogService.LOG_ERROR, ft.getMessage());
     }
 
     @Override
     public void error(String s, Object o, Object o1) {
         FormattingTuple ft = MessageFormatter.format(s, o, o1);
-        logService.log(LogService.LOG_ERROR, ft.getMessage());
+        log(LogService.LOG_ERROR, ft.getMessage());
     }
 
     @Override
     public void error(String s, Object... objects) {
         FormattingTuple ft = MessageFormatter.arrayFormat(s, objects);
-        logService.log(LogService.LOG_ERROR, ft.getMessage());
+        log(LogService.LOG_ERROR, ft.getMessage());
     }
 
     @Override
     public void error(String s, Throwable throwable) {
-        logService.log(LogService.LOG_ERROR, s, throwable);
+        log(LogService.LOG_ERROR, s, throwable);
     }
 }

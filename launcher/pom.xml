@@ -5,16 +5,26 @@
   <parent>
     <groupId>org.eientei.progress</groupId>
     <artifactId>root</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
   <artifactId>launcher</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>launcher</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.21</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.framework</artifactId>
@@ -24,11 +34,7 @@
       <groupId>org.apache.felix</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <version>1.4.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.21</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>biz.aQute.bnd</groupId>
@@ -47,6 +53,14 @@
               <mainClass>org.eientei.progress.launcher.Progress</mainClass>
             </transformer>
           </transformers>
+          <filters>
+            <filter>
+              <artifact>biz.aQute.bnd:biz.aQute.bndlib</artifact>
+              <excludes>
+                <exclude>org/osgi/resource/*</exclude>
+              </excludes>
+            </filter>
+          </filters>
         </configuration>
         <executions>
           <execution>
